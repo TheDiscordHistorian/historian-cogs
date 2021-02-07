@@ -1016,7 +1016,7 @@ class Anime(commands.Cog):
                 )
                 await ctx.channel.send(embed=embed)
 
-    @commands.command(name="next", usage="next", ignore_extra=False)
+    @commands.command(name="next", ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def next(self, ctx: Context):
         """
@@ -1074,7 +1074,7 @@ class Anime(commands.Cog):
                 )
                 await ctx.channel.send(embed=embed)
 
-    @commands.command(name="last", usage="last", ignore_extra=False)
+    @commands.command(name="last", ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def last(self, ctx: Context):
         """
