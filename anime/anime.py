@@ -11,8 +11,10 @@ from redbot.core.commands import Context
 from redbot.vendored.discord.ext import menus
 
 from .anilist import AniListClient
+from .animenewsnetwork import AnimeNewsNetworkClient
+from .crunchyroll import CrunchyrollClient
 from .utils import (AniListMediaType, AniListSearchType, AnimeThemesClient,
-                    EmbedListMenu, format_date, format_description,
+                    EmbedListMenu, HTMLFilter, format_date, format_description,
                     format_media_type, get_char_staff_name, get_media_stats,
                     get_media_title, is_adult)
 
@@ -22,6 +24,14 @@ log = logging.getLogger(__name__)
 class Anime(commands.Cog):
     """Search for anime, manga, characters and users using Anilist"""
 
+    __version__ = "1.0.0"
+    __author__ = "The Discord Historian#2420"
+    # from https://github.com/flaree/Flare-Cogs/blob/9ba8c884b0f78f5f2fffce9efec1ca6c8ac600ea/joinmessage/joinmessage.py#L49
+    def format_help_for_context(self, ctx):
+        """Thanks Sinbad."""
+        pre_processed = super().format_help_for_context(ctx)
+        return f"{pre_processed}\nCog Version: {self.__version__}\nAuthor: {self.__author__}"
+
     def __init__(self, bot):
         self.bot = bot
         self.session = aiohttp.ClientSession()
@@ -29,6 +39,8 @@ class Anime(commands.Cog):
         self.animethemes = AnimeThemesClient(
             session=aiohttp.ClientSession(), headers={"User-Agent": "Some Discord Bot"}
         )
+        self.animenewsnetwork = AnimeNewsNetworkClient(session=aiohttp.ClientSession())
+        self.crunchyroll = CrunchyrollClient(session=aiohttp.ClientSession())
 
     def cog_unload(self):
         self.bot.loop.create_task(self.session.close())
@@ -654,6 +666,72 @@ class Anime(commands.Cog):
         return embed
 
     @staticmethod
+    async def get_aninews_embed(data: Dict[str, Any], page: int, pages: int) -> Embed:
+        """
+        Returns the `aninews` embed.
+        Args:
+            data (dict): The data about the anime news.
+            page (int): The current page.
+            pages (page): The number of all pages.
+        Returns:
+            Embed: A discord embed.
+        """
+        f = HTMLFilter()
+        f.feed(data.get("description"))
+        embed = discord.Embed(
+            title=data.get("title"),
+            url=data.get("link"),
+            color=discord.Color.random(),
+            description=f"```{f.text}```",
+        )
+
+        category = None
+        if data.get("category"):
+            category = f' | {data.get("category")}'
+
+        embed.set_author(
+            name=f'Anime News Network News | {data.get("date").replace("-0500", "EST")}'
+            f'{category if data.get("category") else ""}'
+        )
+
+        embed.set_footer(
+            text=f"Provided by https://www.animenewsnetwork.com/ • Page {page}/{pages}"
+        )
+
+        return embed
+
+    @staticmethod
+    async def get_crunchynews_embed(
+        data: Dict[str, Any], page: int, pages: int
+    ) -> Embed:
+        """
+        Returns the `crunchynews` embed.
+        Args:
+            data (dict): The data about the anime news.
+            page (int): The current page.
+            pages (page): The number of all pages.
+        Returns:
+            Embed: A discord embed.
+        """
+        # thanks stackoverflow
+        f = HTMLFilter()
+        f.feed(data.get("description"))
+        embed = discord.Embed(
+            title=data.get("title"),
+            url=data.get("link"),
+            color=discord.Color.random(),
+            description=f"```{f.text}```",
+        )
+
+        embed.set_author(name=f'Crunchyroll News | {data.get("date")}')
+
+        embed.set_footer(
+            text=f"Provided by https://www.crunchyroll.com/ • Page {page}/{pages}"
+        )
+
+        return embed
+
+    @staticmethod
     async def get_next_embed(data: Dict[str, Any], page: int, pages: int) -> Embed:
         """
         Returns the `next` embed.
@@ -762,7 +840,6 @@ class Anime(commands.Cog):
             if embeds:
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -786,7 +863,6 @@ class Anime(commands.Cog):
             if embeds:
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -810,7 +886,6 @@ class Anime(commands.Cog):
             if embeds:
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -834,7 +909,6 @@ class Anime(commands.Cog):
             if embeds:
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -858,7 +932,6 @@ class Anime(commands.Cog):
             if embeds:
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -947,7 +1020,6 @@ class Anime(commands.Cog):
                     embeds.append(embed)
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -1016,7 +1088,7 @@ class Anime(commands.Cog):
                 )
                 await ctx.channel.send(embed=embed)
 
-    @commands.command(name="next", ignore_extra=False)
+    @commands.command(name="next", usage="next", ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def next(self, ctx: Context):
         """
@@ -1062,7 +1134,6 @@ class Anime(commands.Cog):
                     embeds.append(embed)
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -1074,7 +1145,7 @@ class Anime(commands.Cog):
                 )
                 await ctx.channel.send(embed=embed)
 
-    @commands.command(name="last", ignore_extra=False)
+    @commands.command(name="last", usage="last", ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def last(self, ctx: Context):
         """
@@ -1120,7 +1191,6 @@ class Anime(commands.Cog):
                     embeds.append(embed)
                 menu = menus.MenuPages(
                     source=EmbedListMenu(embeds),
-                    delete_message_after=True,
                     clear_reactions_after=True,
                     timeout=30,
                 )
@@ -1128,6 +1198,94 @@ class Anime(commands.Cog):
             else:
                 embed = discord.Embed(
                     title=f"The most recently aired episodes could not be found.",
+                    color=discord.Color.random(),
+                )
+                await ctx.channel.send(embed=embed)
+
+    @commands.command(name="aninews", ignore_extra=False)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def aninews(self, ctx: Context):
+        """
+        Displays the latest anime news from Anime News Network.
+        """
+        async with ctx.channel.typing():
+            try:
+                data = await self.animenewsnetwork.news(count=15)
+            except Exception as e:
+                log.exception(e)
+                embed = discord.Embed(
+                    title=f"An error occurred while searching for the Anime News Network news. Try again.",
+                    color=discord.Color.random(),
+                )
+                return await ctx.channel.send(embed=embed)
+            if data is not None and len(data) > 0:
+                embeds = []
+                for page, news in enumerate(data):
+                    try:
+                        embed = await self.get_aninews_embed(news, page + 1, len(data))
+                    except Exception as e:
+                        log.exception(e)
+                        embed = discord.Embed(
+                            title="Error",
+                            color=discord.Color.random(),
+                            description=f"An error occurred while loading the embed for the Anime News Network news.",
+                        )
+                        embed.set_footer(
+                            text=f"Provided by https://www.animenewsnetwork.com/ • Page {page + 1}/{len(data)}"
+                        )
+                    embeds.append(embed)
+                menu = menus.MenuPages(
+                    source=EmbedListMenu(embeds), clear_reactions_after=True, timeout=30
+                )
+                await menu.start(ctx)
+            else:
+                embed = discord.Embed(
+                    title=f"The Anime News Network news could not be found.",
+                    color=discord.Color.random(),
+                )
+                await ctx.channel.send(embed=embed)
+
+    @commands.command(name="crunchynews", aliases=["crnews"], ignore_extra=False)
+    @commands.cooldown(1, 10, commands.BucketType.user)
+    async def crunchynews(self, ctx: Context):
+        """
+        Displays the latest anime news from Crunchyroll.
+        """
+        async with ctx.channel.typing():
+            try:
+                data = await self.crunchyroll.news(count=15)
+            except Exception as e:
+                log.exception(e)
+                embed = discord.Embed(
+                    title=f"An error occurred while searching for the Crunchyroll news. Try again.",
+                    color=discord.Color.random(),
+                )
+                return await ctx.channel.send(embed=embed)
+            if data is not None and len(data) > 0:
+                embeds = []
+                for page, news in enumerate(data):
+                    try:
+                        embed = await self.get_crunchynews_embed(
+                            news, page + 1, len(data)
+                        )
+                    except Exception as e:
+                        log.exception(e)
+                        embed = discord.Embed(
+                            title="Error",
+                            color=discord.Color.random(),
+                            description=f"An error occurred while loading the embed for the Crunchyroll news.",
+                        )
+                        embed.set_footer(
+                            text=f"Provided by https://www.crunchyroll.com/ • Page {page + 1}/{len(data)}"
+                        )
+                    embeds.append(embed)
+                menu = menus.MenuPages(
+                    source=EmbedListMenu(embeds), clear_reactions_after=True, timeout=30
+                )
+                await menu.start(ctx)
+            else:
+                embed = discord.Embed(
+                    title=f"The Crunchyroll news could not be found.",
                     color=discord.Color.random(),
                 )
                 await ctx.channel.send(embed=embed)

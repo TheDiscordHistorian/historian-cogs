@@ -1,6 +1,8 @@
 import datetime
 import re
+from abc import ABC
 from enum import Enum
+from html.parser import HTMLParser
 from typing import Any, Dict, List, Optional
 
 import aiohttp
@@ -9,6 +11,12 @@ from redbot.vendored.discord.ext import menus
 ANILIST_API_ENDPOINT = "https://graphql.anilist.co"
 
 ANIMETHEMES_BASE_URL = "https://staging.animethemes.moe/api"
+
+ANIMENEWSNETWORK_NEWS_FEED_ENDPOINT = (
+    "https://www.animenewsnetwork.com/newsroom/rss.xml"
+)
+
+CRUNCHYROLL_NEWS_FEED_ENDPOINT = "https://www.crunchyroll.com/newsrss?lang=enEN"
 
 
 class AnimeThemesException(Exception):
@@ -136,6 +144,19 @@ class AnimeThemesClient:
         url = await self.get_url("search", parameters)
         data = await self._request(url=url)
         return data
+
+
+class HTMLFilter(HTMLParser, ABC):
+    """
+    A simple no deps HTML -> TEXT converter.
+    thanks https://stackoverflow.com/a/55825140
+    copy pasted from https://gist.github.com/ye/050e898fbacdede5a6155da5b3db078d
+    """
+
+    text = ""
+
+    def handle_data(self, data):
+        self.text += data
 
 
 class AniListSearchType(Enum):

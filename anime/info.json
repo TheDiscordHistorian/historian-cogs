@@ -1,0 +1,10 @@
+{
+    "author": ["The Discord Historian#2420"],
+    "install_msg": "No support is given for this cog, nor am I responsibile for anything that happens. [p]help Anime to start with it.",
+    "name": "Anime",
+    "hidden": false,
+    "short": "Just a anime cog.",
+    "description": "Just a anime cog.",
+    "requirements": ["beautifulsoup4"],
+    "min_bot_version": "3.4.0"
+}
