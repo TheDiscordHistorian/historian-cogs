@@ -40,7 +40,7 @@ def nsfwcheck():
 
 
 class Embed(discord.Embed):
-    def __init__(self, colour=0x0FFCFF2, timestamp=None, **kwargs):
+    def __init__(self, colour=discord.Color.random(), timestamp=None, **kwargs):
         super(Embed, self).__init__(
             colour=colour, timestamp=timestamp or datetime.datetime.utcnow(), **kwargs
         )
@@ -156,7 +156,3 @@ class Nhentai(commands.Cog):
             cog=self,
             delete_message_after=True,
         ).start(ctx=ctx, wait=False)
-
-
-async def setup(bot):
-    bot.add_cog(Nhentai(bot))
