@@ -1,0 +1,9 @@
+{
+  "author": ["The Discord Historian#2420"],
+  "install_msg": "WARNING!! Don't use this cog unless, you know what you're doing. It may or may not break your bot. Don't come to me with issues unless you want to get blocked.",
+  "name": "Nhentai",
+  "short": "Nhentai.",
+  "description": "The cog name should explain itself.",
+  "requirements": ["nhentaio"],
+  "min_bot_version": "3.3.10"
+}
