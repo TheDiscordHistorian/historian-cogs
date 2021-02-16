@@ -1,0 +1,9 @@
+{
+    "name": "CulturedCogs.",
+    "short": "Use at your own risk!",
+    "description": "May break your bot if you don't know what you're doing.",
+    "install_msg": "These cogs come with no support and you should use them at your own risk! If there's an actual problem ping me or make a issue. Don't ask me for install instructions which I won't help with.",
+    "author": [
+        "Historian and people"
+    ]
+}
