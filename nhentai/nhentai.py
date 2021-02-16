@@ -27,7 +27,7 @@ def nsfwcheck():
             # From https://github.com/PredaaA/predacogs/blob/2a27589abeb94666a74d5f1bed84b303d95a0e47/nsfw/core.py#L206
             # thanks preda
             return False
-        msg = _("You can't use this command in a non-NSFW channel !")
+        msg = ("You can't use this command in a non-NSFW channel !")
         try:
             embed = discord.Embed(title="\N{LOCK} " + msg, color=0xAA0000)
             await ctx.send(embed=embed)
