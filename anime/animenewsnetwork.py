@@ -114,9 +114,7 @@ class AnimeNewsNetworkClient:
                     "title": item.find("title").text,
                     "link": item.find("guid").text,
                     "description": item.find("description").text,
-                    "category": item.find("category").text
-                    if item.find("category")
-                    else None,
+                    "category": item.find("category").text if item.find("category") else None,
                     "date": item.find("pubdate").text,
                 }
                 data.append(feed)

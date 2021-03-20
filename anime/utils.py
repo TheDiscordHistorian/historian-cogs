@@ -12,9 +12,7 @@ ANILIST_API_ENDPOINT = "https://graphql.anilist.co"
 
 ANIMETHEMES_BASE_URL = "https://staging.animethemes.moe/api"
 
-ANIMENEWSNETWORK_NEWS_FEED_ENDPOINT = (
-    "https://www.animenewsnetwork.com/newsroom/rss.xml"
-)
+ANIMENEWSNETWORK_NEWS_FEED_ENDPOINT = "https://www.animenewsnetwork.com/newsroom/rss.xml"
 
 CRUNCHYROLL_NEWS_FEED_ENDPOINT = "https://www.crunchyroll.com/newsrss?lang=enEN"
 
@@ -56,9 +54,7 @@ class AnimeThemesClient:
     """
 
     def __init__(
-        self,
-        session: Optional[aiohttp.ClientSession] = None,
-        headers: Dict[str, Any] = None,
+        self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None
     ) -> None:
         """
         Initializes the AnimeThemesClient.
@@ -240,7 +236,7 @@ def get_char_staff_name(data: Dict[str, Any]) -> str:
 
 def format_media_type(media_type: str) -> str:
     """
-    Formats the media type.
+    Formats the anilist media type.
     """
     MediaType = {
         "TV": "TV",
@@ -259,7 +255,7 @@ def format_media_type(media_type: str) -> str:
 
 def format_anime_status(media_status: str) -> str:
     """
-    Formats the anime status.
+    Formats the anilist anime status.
     """
     AnimeStatus = {
         "FINISHED": "Finished",
@@ -272,7 +268,7 @@ def format_anime_status(media_status: str) -> str:
 
 def format_manga_status(media_status: str) -> str:
     """
-    Formats the manga status.
+    Formats the anilist manga status.
     """
     MangaStatus = {
         "FINISHED": "Finished",
@@ -285,7 +281,7 @@ def format_manga_status(media_status: str) -> str:
 
 def clean_html(raw_text) -> str:
     """
-    Removes the unwanted html tags.
+    Removes the html tags from a text.
     """
     clean = re.compile("<.*?>")
     clean_text = re.sub(clean, "", raw_text)
@@ -294,9 +290,12 @@ def clean_html(raw_text) -> str:
 
 def format_description(description: str, length: int) -> str:
     """
-    Makes the anilist description suitable for an embed.
+    Formats the anilist description.
     """
     description = clean_html(description)
+    # Remove markdown
+    description = description.replace("**", "").replace("__", "")
+    # Replace spoiler tags
     description = description.replace("~!", "||").replace("!~", "||")
     if len(description) > length:
         description = description[0:length]
@@ -309,11 +308,10 @@ def format_description(description: str, length: int) -> str:
 
 def format_date(day: int, month: int, year: int) -> str:
     """
-    Makes the anilist date suitable for an embed.
+    Formats the anilist date.
     """
     month = datetime.date(1900, month, 1).strftime("%B")
-    month_day = month + " " + str(day)
-    date = "{}, {}".format(month_day, year)
+    date = f"{month} {str(day)}, {year}"
     return date
 
 
