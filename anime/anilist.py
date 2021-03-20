@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Union, Dict, List
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp
 
@@ -27,7 +27,7 @@ class AnilistAPIError(AnilistException):
             status (int): The status code.
             locations (list, optional): The locations of the error.
         """
-        super().__init__(f'{msg} - Status: {str(status)} - Locations: {locations}')
+        super().__init__(f"{msg} - Status: {str(status)} - Locations: {locations}")
 
 
 class AnilistRequestError(AnilistException):
@@ -101,11 +101,16 @@ class AniListClient:
             AnilistAPIError: If the response contains an error.
         """
         session = await self._session()
-        response = await session.post(ANILIST_API_ENDPOINT, json={'query': query, 'variables': variables})
+        response = await session.post(
+            ANILIST_API_ENDPOINT, json={"query": query, "variables": variables}
+        )
         data = await response.json()
-        if data.get('errors'):
-            raise AnilistAPIError(data.get('errors')[0]['message'], data.get('errors')[0]['status'],
-                                  data.get('errors')[0].get('locations'))
+        if data.get("errors"):
+            raise AnilistAPIError(
+                data.get("errors")[0]["message"],
+                data.get("errors")[0]["status"],
+                data.get("errors")[0].get("locations"),
+            )
         return data
 
     async def media(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
@@ -118,8 +123,8 @@ class AniListClient:
             None: If no media entries were found.
         """
         data = await self._request(query=Query.media(), **variables)
-        if data.get('data')['Page']['media']:
-            return data.get('data')['Page']['media']
+        if data.get("data")["Page"]["media"]:
+            return data.get("data")["Page"]["media"]
         return None
 
     async def character(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
@@ -132,8 +137,8 @@ class AniListClient:
             None: If no characters were found.
         """
         data = await self._request(query=Query.character(), **variables)
-        if data.get('data')['Page']['characters']:
-            return data.get('data')['Page']['characters']
+        if data.get("data")["Page"]["characters"]:
+            return data.get("data")["Page"]["characters"]
         return None
 
     async def staff(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
@@ -146,8 +151,8 @@ class AniListClient:
             None: If no staff entries were found.
         """
         data = await self._request(query=Query.staff(), **variables)
-        if data.get('data')['Page']['staff']:
-            return data.get('data')['Page']['staff']
+        if data.get("data")["Page"]["staff"]:
+            return data.get("data")["Page"]["staff"]
         return None
 
     async def studio(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
@@ -160,8 +165,8 @@ class AniListClient:
             None: If no studios were found.
         """
         data = await self._request(query=Query.studio(), **variables)
-        if data.get('data')['Page']['studios']:
-            return data.get('data')['Page']['studios']
+        if data.get("data")["Page"]["studios"]:
+            return data.get("data")["Page"]["studios"]
         return None
 
     async def genre(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
@@ -202,8 +207,8 @@ class AniListClient:
             None: If no user was found.
         """
         data = await self._request(query=Query.user(), **variables)
-        if data.get('data')['Page']['users']:
-            return data.get('data')['Page']['users'][0]
+        if data.get("data")["Page"]["users"]:
+            return data.get("data")["Page"]["users"][0]
         return None
 
     async def schedule(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
@@ -216,8 +221,8 @@ class AniListClient:
             None: If no airing schedule was found.
         """
         data = await self._request(query=Query.schedule(), **variables)
-        if data.get('data')['Page']['airingSchedules']:
-            return data.get('data')['Page']['airingSchedules']
+        if data.get("data")["Page"]["airingSchedules"]:
+            return data.get("data")["Page"]["airingSchedules"]
         return None
 
 
@@ -233,7 +238,7 @@ class Query:
         Returns:
             str: Query used for a media request.
         """
-        MEDIA_QUERY: str = '''
+        MEDIA_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String, $type: MediaType) {
           Page(page: $page, perPage: $perPage) {
             media(search: $search, type: $type) {
@@ -291,7 +296,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return MEDIA_QUERY
 
     @classmethod
@@ -301,7 +306,7 @@ class Query:
         Returns:
             str: Query used for a character request.
         """
-        CHARACTER_QUERY: str = '''
+        CHARACTER_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             characters(search: $search) {
@@ -326,7 +331,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return CHARACTER_QUERY
 
     @classmethod
@@ -336,7 +341,7 @@ class Query:
         Returns:
             str: Query used for a staff request.
         """
-        STAFF_QUERY: str = '''
+        STAFF_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             staff(search: $search) {
@@ -370,7 +375,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return STAFF_QUERY
 
     @classmethod
@@ -380,7 +385,7 @@ class Query:
         Returns:
             str: Query used for a studio request.
         """
-        STUDIO_QUERY: str = '''
+        STUDIO_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             studios(search: $search) {
@@ -403,7 +408,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return STUDIO_QUERY
 
     @classmethod
@@ -413,7 +418,7 @@ class Query:
         Returns:
             str: Query used for a media genre request.
         """
-        GENRE_QUERY: str = '''
+        GENRE_QUERY: str = """
         query ($page: Int, $perPage: Int, $genre: String, $type: MediaType, $format_in: [MediaFormat]) {
           Page(page: $page, perPage: $perPage) {
             pageInfo {
@@ -474,7 +479,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return GENRE_QUERY
 
     @classmethod
@@ -484,7 +489,7 @@ class Query:
         Returns:
             str: Query used for a media tag request.
         """
-        TAG_QUERY: str = '''
+        TAG_QUERY: str = """
         query ($page: Int, $perPage: Int, $tag: String, $type: MediaType, $format_in: [MediaFormat]) {
           Page(page: $page, perPage: $perPage) {
             pageInfo {
@@ -545,7 +550,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return TAG_QUERY
 
     @classmethod
@@ -555,7 +560,7 @@ class Query:
         Returns:
             str: Query used for a user request.
         """
-        USER_QUERY: str = '''
+        USER_QUERY: str = """
         query ($page: Int, $perPage: Int, $name: String) {
           Page(page: $page, perPage: $perPage) {
             users(name: $name) {
@@ -641,7 +646,7 @@ class Query:
             }
           }
         }
-        '''
+        """
         return USER_QUERY
 
     @classmethod
@@ -651,7 +656,7 @@ class Query:
         Returns:
             str: Query used for a airing schedule request.
         """
-        SCHEDULE_QUERY: str = '''
+        SCHEDULE_QUERY: str = """
         query ($page: Int, $perPage: Int, $notYetAired: Boolean, $sort: [AiringSort]) {
           Page(page: $page, perPage: $perPage) {
             airingSchedules(notYetAired: $notYetAired, sort: $sort) {
@@ -684,5 +689,5 @@ class Query:
             }
           }
         }
-        '''
+        """
         return SCHEDULE_QUERY

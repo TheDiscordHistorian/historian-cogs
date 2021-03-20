@@ -12,9 +12,7 @@ ANILIST_API_ENDPOINT = "https://graphql.anilist.co"
 
 ANIMETHEMES_BASE_URL = "https://staging.animethemes.moe/api"
 
-ANIMENEWSNETWORK_NEWS_FEED_ENDPOINT = (
-    "https://www.animenewsnetwork.com/newsroom/rss.xml"
-)
+ANIMENEWSNETWORK_NEWS_FEED_ENDPOINT = "https://www.animenewsnetwork.com/newsroom/rss.xml"
 
 CRUNCHYROLL_NEWS_FEED_ENDPOINT = "https://www.crunchyroll.com/newsrss?lang=enEN"
 
@@ -37,7 +35,7 @@ class AnimeThemesAPIError(AnimeThemesException):
             msg (str): The error message.
             status (int): The status code.
         """
-        super().__init__(msg + ' - Status: ' + str(status))
+        super().__init__(msg + " - Status: " + str(status))
 
 
 class AnimeThemesError(AnimeThemesException):
@@ -55,7 +53,9 @@ class AnimeThemesClient:
         headers (dict): HTTP headers used in the request.
     """
 
-    def __init__(self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None) -> None:
+    def __init__(
+        self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None
+    ) -> None:
         """
         Initializes the AnimeThemesClient.
         Args:
@@ -104,8 +104,10 @@ class AnimeThemesClient:
         session = await self._session()
         response = await session.get(url=url, headers=self.headers)
         data = await response.json()
-        if data.get('errors'):
-            raise AnimeThemesAPIError(data.get('errors')[0]['detail'], data.get('errors')[0]['status'])
+        if data.get("errors"):
+            raise AnimeThemesAPIError(
+                data.get("errors")[0]["detail"], data.get("errors")[0]["status"]
+            )
         return data
 
     @staticmethod
@@ -116,10 +118,12 @@ class AnimeThemesClient:
             endpoint (str): The API endpoint.
             parameters (str): The query parameters.
         """
-        request_url = f'{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}'
+        request_url = f"{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}"
         return request_url
 
-    async def search(self, query: str, limit: Optional[int] = 5, fields: Optional[List[str]] = None) -> Dict[str, Any]:
+    async def search(
+        self, query: str, limit: Optional[int] = 5, fields: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
         """
         Returns relevant resources by search criteria.
         Args:
@@ -129,11 +133,11 @@ class AnimeThemesClient:
         Returns:
             dict: The data about the requested resources.
         """
-        q = query.replace(' ', '%20')
+        q = query.replace(" ", "%20")
         if fields is None:
             fields = []
         parameters = f'?q={q}&limit={limit}&fields={",".join(fields)}'
-        url = await self.get_url('search', parameters)
+        url = await self.get_url("search", parameters)
         data = await self._request(url=url)
         return data
 
@@ -153,17 +157,19 @@ class HTMLFilter(HTMLParser, ABC):
 
 class AniListSearchType(Enum):
     """AniListSearchType Enum."""
-    ANIME = 'ANIME'
-    MANGA = 'MANGA'
-    CHARACTER = 'CHARACTER'
-    STAFF = 'STAFF'
-    STUDIO = 'STUDIO'
+
+    ANIME = "ANIME"
+    MANGA = "MANGA"
+    CHARACTER = "CHARACTER"
+    STAFF = "STAFF"
+    STUDIO = "STUDIO"
 
 
 class AniListMediaType(Enum):
     """AniListMediaType Enum."""
-    ANIME = 'ANIME'
-    MANGA = 'MANGA'
+
+    ANIME = "ANIME"
+    MANGA = "MANGA"
 
 
 class EmbedListMenu(menus.ListPageSource):
@@ -233,16 +239,16 @@ def format_media_type(media_type: str) -> str:
     Formats the anilist media type.
     """
     MediaType = {
-        'TV': 'TV',
-        'MOVIE': 'Movie',
-        'OVA': 'OVA',
-        'ONA': 'ONA',
-        'TV_SHORT': 'TV Short',
-        'MUSIC': 'Music',
-        'SPECIAL': 'Special',
-        'ONE_SHOT': 'One Shot',
-        'NOVEL': 'Novel',
-        'MANGA': 'Manga'
+        "TV": "TV",
+        "MOVIE": "Movie",
+        "OVA": "OVA",
+        "ONA": "ONA",
+        "TV_SHORT": "TV Short",
+        "MUSIC": "Music",
+        "SPECIAL": "Special",
+        "ONE_SHOT": "One Shot",
+        "NOVEL": "Novel",
+        "MANGA": "Manga",
     }
     return MediaType[media_type]
 
@@ -252,10 +258,10 @@ def format_anime_status(media_status: str) -> str:
     Formats the anilist anime status.
     """
     AnimeStatus = {
-        'FINISHED': 'Finished',
-        'RELEASING': 'Currently Airing',
-        'NOT_YET_RELEASED': 'Not Yet Aired',
-        'CANCELLED': 'Cancelled'
+        "FINISHED": "Finished",
+        "RELEASING": "Currently Airing",
+        "NOT_YET_RELEASED": "Not Yet Aired",
+        "CANCELLED": "Cancelled",
     }
     return AnimeStatus[media_status]
 
@@ -265,10 +271,10 @@ def format_manga_status(media_status: str) -> str:
     Formats the anilist manga status.
     """
     MangaStatus = {
-        'FINISHED': 'Finished',
-        'RELEASING': 'Publishing',
-        'NOT_YET_RELEASED': 'Not Yet Published',
-        'CANCELLED': 'Cancelled'
+        "FINISHED": "Finished",
+        "RELEASING": "Publishing",
+        "NOT_YET_RELEASED": "Not Yet Published",
+        "CANCELLED": "Cancelled",
     }
     return MangaStatus[media_status]
 
@@ -277,8 +283,8 @@ def clean_html(raw_text) -> str:
     """
     Removes the html tags from a text.
     """
-    clean = re.compile('<.*?>')
-    clean_text = re.sub(clean, '', raw_text)
+    clean = re.compile("<.*?>")
+    clean_text = re.sub(clean, "", raw_text)
     return clean_text
 
 
@@ -288,15 +294,15 @@ def format_description(description: str, length: int) -> str:
     """
     description = clean_html(description)
     # Remove markdown
-    description = description.replace('**', '').replace('__', '')
+    description = description.replace("**", "").replace("__", "")
     # Replace spoiler tags
-    description = description.replace('~!', '||').replace('!~', '||')
+    description = description.replace("~!", "||").replace("!~", "||")
     if len(description) > length:
         description = description[0:length]
-        spoiler_tag_count = description.count('||')
+        spoiler_tag_count = description.count("||")
         if spoiler_tag_count % 2 != 0:
-            return description + '...||'
-        return description + '...'
+            return description + "...||"
+        return description + "..."
     return description
 
 
@@ -304,8 +310,8 @@ def format_date(day: int, month: int, year: int) -> str:
     """
     Formats the anilist date.
     """
-    month = datetime.date(1900, month, 1).strftime('%B')
-    date = f'{month} {str(day)}, {year}'
+    month = datetime.date(1900, month, 1).strftime("%B")
+    date = f"{month} {str(day)}, {year}"
     return date
 
 
