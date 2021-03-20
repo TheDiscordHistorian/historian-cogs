@@ -539,33 +539,34 @@ class Anime(commands.Cog):
         Returns:
             Embed: A discord embed.
         """
-        embed = discord.Embed(color=discord.Color.random(), title=data.get("name"))
+        embed = discord.Embed(color=discord.Color.random(), title=data.get('name'))
 
-        if data.get("siteUrl"):
-            embed.url = data.get("siteUrl")
+        embed.set_author(name='Studio')
 
-        if data.get("media")["nodes"]:
-            if data.get("media")["nodes"][0]["coverImage"]["large"]:
-                embed.set_thumbnail(
-                    url=data.get("media")["nodes"][0]["coverImage"]["large"]
-                )
+        if data.get('siteUrl'):
+            embed.url = data.get('siteUrl')
 
-        if data.get("isAnimationStudio") is True:
-            embed.description = "**Animation Studio**"
+        if data.get('media')['nodes']:
+            if data.get('media')['nodes'][0]['coverImage']['large']:
+                embed.set_thumbnail(url=data.get('media')['nodes'][0]['coverImage']['large'])
 
-        if data.get("media")["nodes"]:
-            media = []
-            for x in data.get("media")["nodes"]:
-                media.append(
-                    f'[{[x][0]["title"]["romaji"]}]({[x][0]["siteUrl"]}) -> '
-                    f'Type: **{format_media_type([x][0]["format"])}** | Episodes: **{[x][0]["episodes"]}**'
-                )
+        if data.get('isAnimationStudio') is True:
+            embed.description = '**Animation Studio**'
 
-            embed.add_field(
-                name="Most Popular Productions", value="\n".join(media), inline=False
-            )
+        if data.get('media')['nodes']:
+            media, length = [], 0
+            for x in data.get('media')['nodes']:
+                studio = f'[{[x][0]["title"]["romaji"]}]({[x][0]["siteUrl"]}) » Type: ' \
+                         f'**{format_media_type([x][0]["format"]) if [x][0]["format"] else "N/A"}** | Episodes: ' \
+                         f'**{[x][0]["episodes"] if [x][0]["episodes"] else "N/A"}**'
+                length += len(studio)
+                if length >= 1024:
+                    break
+                media.append(studio)
 
-        embed.set_footer(text=f"Provided by https://anilist.co/ • Page {page}/{pages}")
+            embed.add_field(name='Most Popular Productions', value='\n'.join(media), inline=False)
+
+        embed.set_footer(text=f'Provided by https://anilist.co/ • Page {page}/{pages}')
 
         return embed
 
@@ -580,41 +581,35 @@ class Anime(commands.Cog):
         Returns:
             Embed: A discord embed.
         """
-        embed = discord.Embed(color=discord.Color.random(), title=data.get("name"))
+        embed = discord.Embed(color=discord.Color.random(), title=data.get('name'))
 
-        if data.get("images"):
-            embed.set_thumbnail(url=data.get("images")[0]["link"])
+        embed.set_author(name='Themes')
 
-        if data.get("resources"):
-            embed.description = " | ".join(
-                [
-                    f'[{site.get("site")}]({site.get("link")})'
-                    for site in data.get("resources")
-                ]
-            )
+        if data.get('images'):
+            embed.set_thumbnail(url=data.get('images')[0]['link'])
+
+        if data.get('resources'):
+            embed.description = ' | '.join([f'[{site.get("site")}]({site.get("link")})' for site in
+                                            data.get('resources')])
 
         count = 1
-        for theme in data.get("themes"):
+        for theme in data.get('themes'):
             if count >= 15:
-                embed.add_field(name=theme.get("slug"), value="...", inline=False)
+                embed.add_field(name=theme.get('slug'), value='...', inline=False)
                 break
             count += 1
 
-            list_ = ["**Title:** " + theme.get("song")["title"]]
+            list_ = ['**Title:** ' + theme.get('song')['title']]
 
-            if theme.get("song")["artists"]:
-                list_.append("**Artist:** " + theme.get("song")["artists"][0]["name"])
+            if theme.get('song')['artists']:
+                list_.append('**Artist:** ' + theme.get('song')['artists'][0]['name'])
 
             link = f'[Link](http://animethemes.moe/video/{theme.get("entries")[0]["videos"][0]["basename"]})'
             list_.append(link)
 
-            embed.add_field(
-                name=theme.get("slug"), value="\n".join(list_), inline=False
-            )
+            embed.add_field(name=theme.get('slug'), value='\n'.join(list_), inline=False)
 
-        embed.set_footer(
-            text=f"Provided by https://animethemes.moe/ • Page {page}/{pages}"
-        )
+        embed.set_footer(text=f'Provided by https://animethemes.moe/ • Page {page}/{pages}')
 
         return embed
 
@@ -630,38 +625,27 @@ class Anime(commands.Cog):
         """
         embed = discord.Embed(color=discord.Color.random(), title=anime.get("name"))
 
-        embed.set_author(
-            name=data.get("slug").replace("OP", "Opening ").replace("ED", "Ending ")
-        )
+        embed.set_author(name=data.get('slug').replace('OP', 'Opening ').replace('ED', 'Ending '))
 
-        if anime.get("images"):
+        if anime.get('images'):
             embed.set_thumbnail(url=anime.get("images")[0]["link"])
 
         list_ = []
 
-        if anime.get("resources"):
-            list_.append(
-                " | ".join(
-                    [
-                        f'[{site.get("site")}]({site.get("link")})'
-                        for site in anime.get("resources")
-                    ]
-                )
-                + "\n"
-            )
+        if anime.get('resources'):
+            list_.append(' | '.join([f'[{site.get("site")}]({site.get("link")})' for site in
+                                     anime.get('resources')]) + '\n')
 
-        list_.append("**Title:** " + data.get("song")["title"])
+        list_.append('**Title:** ' + data.get('song')['title'])
 
-        if data.get("song")["artists"]:
-            list_.append(
-                "**Artist:** " + data.get("song")["artists"][0]["name"]
-                if len(data.get("song")["artists"]) == 1
-                else ", ".join([a for a in data.get("song")["artists"]])
-            )
+        if data.get('song')['artists']:
+            list_.append('**Artist:** ' + data.get('song')['artists'][0]['name'] if
+                         len(data.get('song')['artists']) == 1 else
+                         '**Artists:** ' + ', '.join([a.get("name") for a in data.get('song')['artists']]))
 
-        embed.description = "\n".join(list_) if len(list_) > 0 else "N/A"
+        embed.description = '\n'.join(list_) if len(list_) > 0 else 'N/A'
 
-        embed.set_footer(text=f"Provided by https://animethemes.moe/")
+        embed.set_footer(text=f'Provided by https://animethemes.moe/')
 
         return embed
 
@@ -981,111 +965,79 @@ class Anime(commands.Cog):
                 ctx.command.reset_cooldown(ctx)
                 raise discord.ext.commands.BadArgument
 
-    @commands.command(name="themes", ignore_extra=False)
+    @commands.command(name='themes', usage='themes <anime>', ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def themes(self, ctx: Context, *, anime: str):
         """
         Searches for the openings and endings of the given anime and displays them.
         """
         async with ctx.channel.typing():
-            data = await self.animethemes.search(anime, 5, ["anime"])
-            if data.get("anime"):
+            data = await self.animethemes.search(anime, 5, ['anime'])
+            if data.get('search').get('anime'):
                 embeds = []
-                for page, entry in enumerate(data.get("anime")):
+                for page, entry in enumerate(data.get('search').get('anime')):
                     try:
-                        embed = await self.get_themes_embed(
-                            entry, page + 1, len(data.get("anime"))
-                        )
-                        if is_adult(entry.get("themes")[0]["entries"][0]):
+                        embed = await self.get_themes_embed(entry, page + 1, len(data.get('search').get('anime')))
+                        if is_adult(entry.get('themes')[0]['entries'][0]):
                             if not ctx.channel.is_nsfw():
-                                embed = discord.Embed(
-                                    title="Error",
-                                    color=discord.Color.random(),
-                                    description=f"Adult content. No NSFW channel.",
-                                )
+                                embed = discord.Embed(title='Error', color=discord.Color.random(),
+                                                      description=f'Adult content. No NSFW channel.')
                                 embed.set_footer(
-                                    text=f"Provided by https://animethemes.moe/ • Page {page + 1}/"
-                                    f'{len(data.get("anime"))}'
-                                )
+                                    text=f'Provided by https://animethemes.moe/ • Page {page + 1}/'
+                                         f'{len(data.get("anime"))}')
                     except Exception as e:
                         log.exception(e)
                         embed = discord.Embed(
-                            title="Error",
-                            color=discord.Color.random(),
-                            description=f"An error occurred while loading the embed for the anime.",
-                        )
+                            title='Error', color=discord.Color.random(),
+                            description=f'An error occurred while loading the embed for the anime.')
                         embed.set_footer(
-                            text=f'Provided by https://animethemes.moe/ • Page {page + 1}/{len(data.get("anime"))}'
-                        )
+                            text=f'Provided by https://animethemes.moe/ • Page {page + 1}/{len(data.get("anime"))}')
                     embeds.append(embed)
-                menu = menus.MenuPages(
-                    source=EmbedListMenu(embeds),
-                    clear_reactions_after=True,
-                    timeout=30,
-                )
+                menu = menus.MenuPages(source=EmbedListMenu(embeds), clear_reactions_after=True, timeout=30)
                 await menu.start(ctx)
             else:
-                embed = discord.Embed(
-                    title=f"No themes for the anime `{anime}` found.",
-                    color=discord.Color.random(),
-                )
+                embed = discord.Embed(title=f'No themes for the anime `{anime}` found.', color=discord.Color.random())
                 await ctx.channel.send(embed=embed)
 
-    @commands.command(name="theme", ignore_extra=False)
+    @commands.command(name='theme', usage='theme <OP|ED> <anime>', ignore_extra=False)
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def theme(self, ctx: Context, theme: str, *, anime: str):
         """
         Displays a specific opening or ending of the given anime.
         """
         async with ctx.channel.typing():
-            data = await self.animethemes.search(anime, 1, ["anime"])
-            if data.get("anime"):
-                anime_ = data.get("anime")[0]
-                for entry in anime_.get("themes"):
-                    if (
-                        theme.upper() == entry.get("slug")
-                        or (theme.upper() == "OP" and entry.get("slug") == "OP1")
-                        or (theme.upper() == "ED" and entry.get("slug") == "ED1")
-                        or (theme.upper() == "OP1" and entry.get("slug") == "OP")
-                        or (theme.upper() == "ED1" and entry.get("slug") == "ED")
-                    ):
+            data = await self.animethemes.search(anime, 1, ['anime'])
+            if data.get('search').get('anime'):
+                anime_ = data.get('search').get('anime')[0]
+                for entry in anime_.get('themes'):
+                    if theme.upper() == entry.get('slug') or \
+                            (theme.upper() == 'OP' and entry.get('slug') == 'OP1') or \
+                            (theme.upper() == 'ED' and entry.get('slug') == 'ED1') or \
+                            (theme.upper() == 'OP1' and entry.get('slug') == 'OP') or \
+                            (theme.upper() == 'ED1' and entry.get('slug') == 'ED'):
                         try:
                             embed = await self.get_theme_embed(anime_, entry)
-                            if is_adult(entry.get("entries")[0]):
+                            if is_adult(entry.get('entries')[0]):
                                 if not ctx.channel.is_nsfw():
-                                    embed = discord.Embed(
-                                        title="Error",
-                                        color=discord.Color.random(),
-                                        description=f"Adult content. No NSFW channel.",
-                                    )
-                                    embed.set_footer(
-                                        text=f"Provided by https://animethemes.moe/"
-                                    )
+                                    embed = discord.Embed(title='Error', color=discord.Color.random(),
+                                                          description=f'Adult content. No NSFW channel.')
+                                    embed.set_footer(text=f'Provided by https://animethemes.moe/')
                                     return await ctx.channel.send(embed=embed)
                         except Exception as e:
                             log.exception(e)
                             embed = discord.Embed(
-                                title="Error",
-                                color=discord.Color.random(),
-                                description=f"An error occurred while loading the embed for the theme.",
-                            )
+                                title='Error', color=discord.Color.random(),
+                                description=f'An error occurred while loading the embed for the theme.')
                             embed.set_footer(
-                                text=f"Provided by https://animethemes.moe/"
-                            )
+                                text='Provided by https://animethemes.moe/')
                         await ctx.channel.send(embed=embed)
                         return await ctx.channel.send(
-                            f'http://animethemes.moe/video/{entry.get("entries")[0]["videos"][0]["basename"]}'
-                        )
+                            f'http://animethemes.moe/video/{entry.get("entries")[0]["videos"][0]["basename"]}')
                 embed = discord.Embed(
-                    title=f"Cannot find `{theme.upper()}` for the anime `{anime}`.",
-                    color=discord.Color.random(),
-                )
+                    title=f'Cannot find `{theme.upper()}` for the anime `{anime}`.', color=discord.Color.random())
                 await ctx.channel.send(embed=embed)
             else:
-                embed = discord.Embed(
-                    title=f"No theme for the anime `{anime}` found.",
-                    color=discord.Color.random(),
-                )
+                embed = discord.Embed(title=f'No theme for the anime `{anime}` found.', color=discord.Color.random())
                 await ctx.channel.send(embed=embed)
 
     @commands.command(name="next", ignore_extra=False)

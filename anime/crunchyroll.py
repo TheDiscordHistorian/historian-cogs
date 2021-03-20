@@ -103,19 +103,19 @@ class CrunchyrollClient:
             list: Dictionaries with the data about the feed.
             None: If no items were found.
         """
-        soup = BeautifulSoup(text, "html.parser")
-        items = soup.find_all("item")
+        soup = BeautifulSoup(text, 'html.parser')
+        items = soup.find_all('item')
         if items:
             data = []
             for item in items:
                 if len(data) >= count:
                     break
                 feed = {
-                    "title": item.find("title").text,
-                    "author": item.find("author").text,
-                    "description": item.find("description").text,
-                    "date": item.find("pubdate").text,
-                    "link": item.find("guid").text,
+                    'title': item.find('title').text,
+                    'author': item.find('author').text,
+                    'description': item.find('description').text,
+                    'date': item.find('pubdate').text,
+                    'link': item.find('guid').text
                 }
                 data.append(feed)
             return data

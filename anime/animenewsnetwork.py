@@ -103,21 +103,19 @@ class AnimeNewsNetworkClient:
             list: Dictionaries with the data about the feed.
             None: If no items were found.
         """
-        soup = BeautifulSoup(text, "html.parser")
-        items = soup.find_all("item")
+        soup = BeautifulSoup(text, 'html.parser')
+        items = soup.find_all('item')
         if items:
             data = []
             for item in items:
                 if len(data) >= count:
                     break
                 feed = {
-                    "title": item.find("title").text,
-                    "link": item.find("guid").text,
-                    "description": item.find("description").text,
-                    "category": item.find("category").text
-                    if item.find("category")
-                    else None,
-                    "date": item.find("pubdate").text,
+                    'title': item.find('title').text,
+                    'link': item.find('guid').text,
+                    'description': item.find('description').text,
+                    'category': item.find('category').text if item.find('category') else None,
+                    'date': item.find('pubdate').text
                 }
                 data.append(feed)
             return data
