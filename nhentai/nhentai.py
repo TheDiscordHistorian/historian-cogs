@@ -75,9 +75,10 @@ class Nhentai(commands.Cog):
         emb = Embed.default(ctx)
         emb.title = gallery.title
         emb.set_image(url=gallery.cover.url)
-        msg = ""
-        for tag in gallery.tags:
-            msg += f"`{tag.name}` | `{tag.name}` | `{tag.name}`\n"
+        msg = "".join(
+            f"`{tag.name}` | `{tag.name}` | `{tag.name}`\n" for tag in gallery.tags
+        )
+
         emb.add_field(name="Tags", value=msg)
         await ctx.reply(embed=emb)
 
