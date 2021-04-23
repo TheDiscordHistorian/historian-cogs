@@ -54,7 +54,9 @@ class AnimeThemesClient:
     """
 
     def __init__(
-        self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None
+        self,
+        session: Optional[aiohttp.ClientSession] = None,
+        headers: Dict[str, Any] = None,
     ) -> None:
         """
         Initializes the AnimeThemesClient.
@@ -195,10 +197,9 @@ def get_media_title(data: Dict[str, Any]) -> str:
     Returns the media title.
     """
     if data.get("english") is None or data.get("english") == data.get("romaji"):
-        title = data.get("romaji")
+        return data.get("romaji")
     else:
-        title = "{} ({})".format(data.get("romaji"), data.get("english"))
-    return title
+        return "{} ({})".format(data.get("romaji"), data.get("english"))
 
 
 def get_media_stats(format_: str, type_: str, status: str, mean_score: int) -> str:
@@ -216,8 +217,7 @@ def get_media_stats(format_: str, type_: str, status: str, mean_score: int) -> s
     anime_stats.append(anime_status)
     anime_score = "Score: " + str(mean_score) if mean_score else "N/A"
     anime_stats.append(anime_score)
-    stats = " | ".join(anime_stats)
-    return stats
+    return " | ".join(anime_stats)
 
 
 def get_char_staff_name(data: Dict[str, Any]) -> str:
@@ -323,6 +323,4 @@ def is_adult(data: Dict[str, Any]) -> bool:
         return True
     if data.get("is_adult") is True:
         return True
-    if data.get("nsfw") is True:
-        return True
-    return False
+    return data.get("nsfw") is True
