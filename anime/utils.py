@@ -304,7 +304,8 @@ def format_date(day: int, month: int, year: int) -> str:
     Formats the anilist date.
     """
     month = datetime.date(1900, month, 1).strftime("%B")
-    return f"{month} {str(day)}, {year}"
+    date = f"{month} {str(day)}, {year}"
+    return date
 
 
 def is_adult(data: Dict[str, Any]) -> bool:
