@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 from .utils import CRUNCHYROLL_NEWS_FEED_ENDPOINT
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("red.historian.anime")
 
 
 class CrunchyrollException(Exception):
