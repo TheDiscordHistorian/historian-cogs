@@ -108,9 +108,14 @@ class Anime(commands.Cog):
 
                     if is_adult(entry):
                         if not ctx.channel.is_nsfw():
-                            embed = discord.Embed(title='Error', color=discord.Color.random(),
-                                                  description=f'Adult content. No NSFW channel.')
-                            embed.set_footer(text=f'Provided by https://anilist.co/ • Page {page + 1}/{len(data)}')
+                            embed = discord.Embed(
+                                title="Error",
+                                color=discord.Color.random(),
+                                description=f"Adult content. No NSFW channel.",
+                            )
+                            embed.set_footer(
+                                text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
+                            )
 
                 except Exception as e:
                     log.exception(e)
@@ -201,10 +206,13 @@ class Anime(commands.Cog):
             try:
                 embed = await self.get_media_embed(data.get("data")["Page"]["media"][0])
 
-                if is_adult(data.get('data')['Page']['media'][0]):
+                if is_adult(data.get("data")["Page"]["media"][0]):
                     if not ctx.channel.is_nsfw():
-                        embed = discord.Embed(title='Error', color=discord.Color.random(),
-                                              description=f'Adult content. No NSFW channel.')
+                        embed = discord.Embed(
+                            title="Error",
+                            color=discord.Color.random(),
+                            description=f"Adult content. No NSFW channel.",
+                        )
 
             except Exception as e:
                 log.exception(e)
