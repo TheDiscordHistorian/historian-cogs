@@ -14,11 +14,12 @@ from .anilist import AniListClient
 from .animenewsnetwork import AnimeNewsNetworkClient
 from .crunchyroll import CrunchyrollClient
 from .utils import (AniListMediaType, AniListSearchType, AnimeThemesClient,
-                    EmbedListMenu, HTMLFilter, format_date, format_description,
+                    EmbedListMenu, HTMLFilter, format_anime_status,
+                    format_date, format_description, format_manga_status,
                     format_media_type, get_char_staff_name, get_media_stats,
                     get_media_title, is_adult)
 
-log = logging.getLogger(__name__)
+log = logging.getLogger("red.historian.anime")
 
 
 class Anime(commands.Cog):
@@ -107,14 +108,9 @@ class Anime(commands.Cog):
 
                     if is_adult(entry):
                         if not ctx.channel.is_nsfw():
-                            embed = discord.Embed(
-                                title="Error",
-                                color=discord.Color.random(),
-                                description=f"Adult content. No NSFW channel.",
-                            )
-                            embed.set_footer(
-                                text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
-                            )
+                            embed = discord.Embed(title='Error', color=discord.Color.random(),
+                                                  description=f'Adult content. No NSFW channel.')
+                            embed.set_footer(text=f'Provided by https://anilist.co/ • Page {page + 1}/{len(data)}')
 
                 except Exception as e:
                     log.exception(e)
@@ -205,13 +201,10 @@ class Anime(commands.Cog):
             try:
                 embed = await self.get_media_embed(data.get("data")["Page"]["media"][0])
 
-                if is_adult(data.get("data")["Page"]["media"][0]):
+                if is_adult(data.get('data')['Page']['media'][0]):
                     if not ctx.channel.is_nsfw():
-                        embed = discord.Embed(
-                            title="Error",
-                            color=discord.Color.random(),
-                            description=f"Adult content. No NSFW channel.",
-                        )
+                        embed = discord.Embed(title='Error', color=discord.Color.random(),
+                                              description=f'Adult content. No NSFW channel.')
 
             except Exception as e:
                 log.exception(e)
@@ -239,7 +232,6 @@ class Anime(commands.Cog):
             Embed: A discord embed.
         """
         embed = discord.Embed(
-            title=get_media_title(data.get("title")),
             description=format_description(data.get("description"), 400)
             if data.get("description")
             else "N/A",
@@ -248,20 +240,35 @@ class Anime(commands.Cog):
             else discord.Color.random(),
         )
 
+        if (
+            data.get("title")["english"] is None
+            or data.get("title")["english"] == data.get("title")["romaji"]
+        ):
+            embed.title = data.get("title")["romaji"]
+        else:
+            embed.title = f'{data.get("title")["romaji"]} ({data.get("title")["english"]})'
+
         if data.get("coverImage")["large"]:
             embed.set_thumbnail(url=data.get("coverImage")["large"])
 
         if data.get("bannerImage"):
             embed.set_image(url=data.get("bannerImage"))
 
-        embed.set_author(
-            name=get_media_stats(
-                data.get("format"),
-                data.get("type"),
-                data.get("status"),
-                data.get("meanScore"),
-            )
-        )
+        stats = []
+        type_ = f'Type: {format_media_type(data.get("format")) if data.get("format") else "N/A"}'
+        stats.append(type_)
+
+        status = "N/A"
+        if data.get("type") == "ANIME":
+            status = f'Status: {format_anime_status(data.get("status"))}'
+        elif data.get("type") == "MANGA":
+            status = f'Status: {format_manga_status(data.get("status"))}'
+        stats.append(status)
+
+        score = f'Score: {str(data.get("meanScore")) if data.get("meanScore") else "N/A"}'
+        stats.append(score)
+
+        embed.set_author(name=" | ".join(stats))
 
         if data.get("type") == "ANIME":
             if data.get("status") == "RELEASING":
@@ -283,7 +290,7 @@ class Anime(commands.Cog):
                         value=data.get("episodes") if data.get("episodes") else "N/A",
                         inline=True,
                     )
-            elif data.get("episodes"):
+            else:
                 embed.add_field(
                     name="Episodes",
                     value=data.get("episodes") if data.get("episodes") else "N/A",
@@ -364,12 +371,18 @@ class Anime(commands.Cog):
             )
 
         if data.get("synonyms"):
-            embed.add_field(name="Synonyms", value=", ".join(data.get("synonyms")), inline=False)
+            embed.add_field(
+                name="Synonyms",
+                value=", ".join([f"`{s}`" for s in data.get("synonyms")]),
+                inline=False,
+            )
 
         embed.add_field(
             name="Genres",
-            value=", ".join(data.get("genres")) if data.get("genres") else "N/A",
             inline=False,
+            value=", ".join(
+                [f"`{g}`" for g in data.get("genres")] if data.get("genres") else "N/A"
+            ),
         )
 
         sites = []
@@ -421,11 +434,22 @@ class Anime(commands.Cog):
         """
         embed = discord.Embed(
             color=discord.Color.random(),
-            title=get_char_staff_name(data.get("name")),
             description=format_description(data.get("description"), 1000)
             if data.get("description")
             else "N/A",
         )
+
+        if (
+            data.get("name")["full"] is None
+            or data.get("name")["full"] == data.get("name")["native"]
+        ):
+            embed.title = data.get("name")["native"]
+        elif data.get("name")["native"] is None:
+            embed.title = data.get("name")["full"]
+        else:
+            embed.title = f'{data.get("name")["full"]} ({data.get("name")["native"]})'
+
+        embed.set_author(name="Character")
 
         if data.get("image")["large"]:
             embed.set_thumbnail(url=data.get("image")["large"])
@@ -467,12 +491,23 @@ class Anime(commands.Cog):
             Embed: A discord embed.
         """
         embed = discord.Embed(
-            title=get_char_staff_name(data.get("name")),
             color=discord.Color.random(),
             description=format_description(data.get("description"), 1000)
             if data.get("description")
             else "N/A",
         )
+
+        if (
+            data.get("name")["full"] is None
+            or data.get("name")["full"] == data.get("name")["native"]
+        ):
+            embed.title = data.get("name")["native"]
+        elif data.get("name")["native"] is None:
+            embed.title = data.get("name")["full"]
+        else:
+            embed.title = f'{data.get("name")["full"]} ({data.get("name")["native"]})'
+
+        embed.set_author(name="Staff")
 
         if data.get("image")["large"]:
             embed.set_thumbnail(url=data.get("image")["large"])
@@ -930,26 +965,22 @@ class Anime(commands.Cog):
                     AniListMediaType.ANIME,
                     ["TV", "MOVIE", "OVA", "ONA", "TV_SHORT", "MUSIC", "SPECIAL"],
                 )
-                if embed:
-                    await ctx.channel.send(embed=embed)
-                else:
+                if not embed:
                     embed = discord.Embed(
                         title=f"An anime with the genre `{genre}` could not be found.",
                         color=discord.Color.random(),
                     )
-                    await ctx.channel.send(embed=embed)
+                await ctx.channel.send(embed=embed)
             elif media.lower() == AniListMediaType.MANGA.value.lower():
                 embed = await self.anilist_random(
                     ctx, genre, AniListMediaType.MANGA, ["MANGA", "ONE_SHOT", "NOVEL"]
                 )
-                if embed:
-                    await ctx.channel.send(embed=embed)
-                else:
+                if not embed:
                     embed = discord.Embed(
                         title=f"A manga with the genre `{genre}` could not be found.",
                         color=discord.Color.random(),
                     )
-                    await ctx.channel.send(embed=embed)
+                await ctx.channel.send(embed=embed)
             else:
                 ctx.command.reset_cooldown(ctx)
                 raise discord.ext.commands.BadArgument
@@ -1076,16 +1107,6 @@ class Anime(commands.Cog):
                 for page, anime in enumerate(data):
                     try:
                         embed = await self.get_next_embed(anime, page + 1, len(data))
-                        if is_adult(anime.get("media")):
-                            if not ctx.channel.is_nsfw():
-                                embed = discord.Embed(
-                                    title="Error",
-                                    color=discord.Color.random(),
-                                    description=f"Adult content. No NSFW channel.",
-                                )
-                                embed.set_footer(
-                                    text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
-                                )
                     except Exception as e:
                         log.exception(e)
                         embed = discord.Embed(
@@ -1133,16 +1154,6 @@ class Anime(commands.Cog):
                 for page, anime in enumerate(data):
                     try:
                         embed = await self.get_last_embed(anime, page + 1, len(data))
-                        if is_adult(anime.get("media")):
-                            if not ctx.channel.is_nsfw():
-                                embed = discord.Embed(
-                                    title="Error",
-                                    color=discord.Color.random(),
-                                    description=f"Adult content. No NSFW channel.",
-                                )
-                                embed.set_footer(
-                                    text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
-                                )
                     except Exception as e:
                         log.exception(e)
                         embed = discord.Embed(
