@@ -63,11 +63,7 @@ class Anime(commands.Cog):
         data = None
 
         try:
-            if type_ == AniListSearchType.ANIME:
-                data = await self.anilist.media(
-                    search=search, page=1, perPage=15, type=type_.value
-                )
-            elif type_ == AniListSearchType.MANGA:
+            if type_ in [AniListSearchType.ANIME, AniListSearchType.MANGA]:
                 data = await self.anilist.media(
                     search=search, page=1, perPage=15, type=type_.value
                 )
@@ -95,9 +91,7 @@ class Anime(commands.Cog):
                 embed = None
 
                 try:
-                    if type_ == AniListSearchType.ANIME:
-                        embed = await self.get_media_embed(entry, page + 1, len(data))
-                    elif type_ == AniListSearchType.MANGA:
+                    if type_ in [AniListSearchType.ANIME, AniListSearchType.MANGA]:
                         embed = await self.get_media_embed(entry, page + 1, len(data))
                     elif type_ == AniListSearchType.CHARACTER:
                         embed = await self.get_character_embed(entry, page + 1, len(data))
@@ -106,16 +100,15 @@ class Anime(commands.Cog):
                     elif type_ == AniListSearchType.STUDIO:
                         embed = await self.get_studio_embed(entry, page + 1, len(data))
 
-                    if is_adult(entry):
-                        if not ctx.channel.is_nsfw():
-                            embed = discord.Embed(
-                                title="Error",
-                                color=discord.Color.random(),
-                                description=f"Adult content. No NSFW channel.",
-                            )
-                            embed.set_footer(
-                                text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
-                            )
+                    if is_adult(entry) and not ctx.channel.is_nsfw():
+                        embed = discord.Embed(
+                            title="Error",
+                            color=discord.Color.random(),
+                            description=f"Adult content. No NSFW channel.",
+                        )
+                        embed.set_footer(
+                            text=f"Provided by https://anilist.co/ • Page {page + 1}/{len(data)}"
+                        )
 
                 except Exception as e:
                     log.exception(e)
@@ -206,13 +199,15 @@ class Anime(commands.Cog):
             try:
                 embed = await self.get_media_embed(data.get("data")["Page"]["media"][0])
 
-                if is_adult(data.get("data")["Page"]["media"][0]):
-                    if not ctx.channel.is_nsfw():
-                        embed = discord.Embed(
-                            title="Error",
-                            color=discord.Color.random(),
-                            description=f"Adult content. No NSFW channel.",
-                        )
+                if (
+                    is_adult(data.get("data")["Page"]["media"][0])
+                    and not ctx.channel.is_nsfw()
+                ):
+                    embed = discord.Embed(
+                        title="Error",
+                        color=discord.Color.random(),
+                        description=f"Adult content. No NSFW channel.",
+                    )
 
             except Exception as e:
                 log.exception(e)
@@ -295,27 +290,26 @@ class Anime(commands.Cog):
                 except TypeError:
                     embed.add_field(
                         name="Episodes",
-                        value=data.get("episodes") if data.get("episodes") else "N/A",
+                        value=data.get("episodes") or "N/A",
                         inline=True,
                     )
             else:
                 embed.add_field(
                     name="Episodes",
-                    value=data.get("episodes") if data.get("episodes") else "N/A",
+                    value=data.get("episodes") or "N/A",
                     inline=True,
                 )
 
+
         elif data.get("type") == "MANGA":
             embed.add_field(
-                name="Chapters",
-                value=data.get("chapters") if data.get("chapters") else "N/A",
-                inline=True,
+                name="Chapters", value=data.get("chapters") or "N/A", inline=True
             )
+
             embed.add_field(
-                name="Volumes",
-                value=data.get("volumes") if data.get("volumes") else "N/A",
-                inline=True,
+                name="Volumes", value=data.get("volumes") or "N/A", inline=True
             )
+
             embed.add_field(
                 name="Source",
                 inline=True,
@@ -394,11 +388,10 @@ class Anime(commands.Cog):
         )
 
         sites = []
-        if data.get("trailer"):
-            if data.get("trailer")["site"] == "youtube":
-                sites.append(
-                    f'[Trailer](https://www.youtube.com/watch?v={data.get("trailer")["id"]})'
-                )
+        if data.get("trailer") and data.get("trailer")["site"] == "youtube":
+            sites.append(
+                f'[Trailer](https://www.youtube.com/watch?v={data.get("trailer")["id"]})'
+            )
         if data.get("externalLinks"):
             for i in data.get("externalLinks"):
                 sites.append(f'[{i["site"]}]({i["url"]})')
@@ -406,9 +399,10 @@ class Anime(commands.Cog):
             name="Streaming and external sites"
             if data.get("type") == "ANIME"
             else "External sites",
-            value=" | ".join(sites) if len(sites) > 0 else "N/A",
+            value=" | ".join(sites) if sites else "N/A",
             inline=False,
         )
+
 
         sites = []
         if data.get("siteUrl"):
@@ -418,9 +412,10 @@ class Anime(commands.Cog):
             sites.append(f'[MyAnimeList](https://myanimelist.net/anime/{str(data.get("idMal"))})')
         embed.add_field(
             name="Find out more",
-            value=" | ".join(sites) if len(sites) > 0 else "N/A",
+            value=" | ".join(sites) if sites else "N/A",
             inline=False,
         )
+
 
         if page is not None and pages is not None:
             embed.set_footer(text=f"Provided by https://anilist.co/ • Page {page}/{pages}")
@@ -469,13 +464,15 @@ class Anime(commands.Cog):
             embed.add_field(
                 name="Synonyms",
                 inline=False,
-                value=", ".join([f"`{a}`" for a in data.get("name")["alternative"]]),
+                value=", ".join(f"`{a}`" for a in data.get("name")["alternative"]),
             )
 
+
         if data.get("media")["nodes"]:
-            media = []
-            for x in data.get("media")["nodes"]:
-                media.append(f'[{[x][0]["title"]["romaji"]}]({[x][0]["siteUrl"]})')
+            media = [
+                f'[{[x][0]["title"]["romaji"]}]({[x][0]["siteUrl"]})'
+                for x in data.get("media")["nodes"]
+            ]
 
             if len(media) > 5:
                 media = media[0:5]

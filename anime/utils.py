@@ -54,9 +54,7 @@ class AnimeThemesClient:
     """
 
     def __init__(
-        self,
-        session: Optional[aiohttp.ClientSession] = None,
-        headers: Dict[str, Any] = None,
+        self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None
     ) -> None:
         """
         Initializes the AnimeThemesClient.
@@ -65,10 +63,7 @@ class AnimeThemesClient:
             headers (dict, optional): HTTP headers used in the request.
         """
         self.session = session
-        if headers:
-            self.headers = headers
-        else:
-            self.headers = {}
+        self.headers = headers or {}
 
     async def __aenter__(self):
         return self
@@ -120,8 +115,7 @@ class AnimeThemesClient:
             endpoint (str): The API endpoint.
             parameters (str): The query parameters.
         """
-        request_url = f"{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}"
-        return request_url
+        return f"{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}"
 
     async def search(
         self, query: str, limit: Optional[int] = 5, fields: Optional[List[str]] = None
@@ -284,8 +278,7 @@ def clean_html(raw_text) -> str:
     Removes the html tags from a text.
     """
     clean = re.compile("<.*?>")
-    clean_text = re.sub(clean, "", raw_text)
-    return clean_text
+    return re.sub(clean, "", raw_text)
 
 
 def format_description(description: str, length: int) -> str:
