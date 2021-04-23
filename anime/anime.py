@@ -25,7 +25,7 @@ log = logging.getLogger("red.historian.anime")
 class Anime(commands.Cog):
     """Search for anime, manga, characters and users using Anilist"""
 
-    __version__ = "1.2.0"
+    __version__ = "1.3.0"
     __author__ = "The Discord Historian#2420"
     # from https://github.com/flaree/Flare-Cogs/blob/9ba8c884b0f78f5f2fffce9efec1ca6c8ac600ea/joinmessage/joinmessage.py#L49
     def format_help_for_context(self, ctx):
