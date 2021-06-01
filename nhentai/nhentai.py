@@ -72,6 +72,8 @@ class NhentaiCog(commands.Cog):
         """ Info about a doujin."""
         if not doujin.isdigit():
             return await ctx.send("Only digits allowed.")
+        if not Hentai.exists(digits):
+            return await ctx.send("Doesn't exist.")
         doujin = Hentai(doujin)
         embed = Embed.default(ctx)
         embed.title = doujin.title(Format.Pretty)
