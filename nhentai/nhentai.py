@@ -1,5 +1,6 @@
 import datetime
 from typing import Optional
+import discord
 
 from hentai import Format, Hentai, Sort, Tag, Utils
 from redbot.core import commands
