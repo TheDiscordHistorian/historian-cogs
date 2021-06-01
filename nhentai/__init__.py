@@ -1,5 +1,5 @@
-from .nhentai import Nhentai
+from .nhentai import NhentaiCog
 
 
 async def setup(bot):
-    bot.add_cog(Nhentai(bot))
+    bot.add_cog(NhentaiCog(bot))
