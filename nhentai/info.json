@@ -4,6 +4,6 @@
   "name": "Nhentai",
   "short": "Nhentai.",
   "description": "The cog name should explain itself.",
-  "requirements": ["nhentaio"],
+  "requirements": ["hentai"],
   "min_bot_version": "3.3.10"
 }
