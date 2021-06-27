@@ -151,16 +151,16 @@ class HTMLFilter(HTMLParser, ABC):
 
 
 class AniListSearchType:
-    Anime = 'Anime'
-    Manga = 'Manga'
-    Character = 'Character'
-    Staff = 'Staff'
-    Studio = 'Studio'
+    Anime = "Anime"
+    Manga = "Manga"
+    Character = "Character"
+    Staff = "Staff"
+    Studio = "Studio"
 
 
 class AniListMediaType:
-    Anime = 'Anime'
-    Manga = 'Manga'
+    Anime = "Anime"
+    Manga = "Manga"
 
 
 class EmbedListMenu(menus.ListPageSource):
@@ -226,16 +226,16 @@ def get_char_staff_name(data: Dict[str, Any]) -> str:
 def format_media_type(media_type: str) -> str:
     """Formats the anilist media type."""
     MediaType = {
-        'TV': 'TV',
-        'MOVIE': 'Movie',
-        'OVA': 'OVA',
-        'ONA': 'ONA',
-        'TV_SHORT': 'TV Short',
-        'MUSIC': 'Music',
-        'SPECIAL': 'Special',
-        'ONE_SHOT': 'One Shot',
-        'NOVEL': 'Novel',
-        'MANGA': 'Manga'
+        "TV": "TV",
+        "MOVIE": "Movie",
+        "OVA": "OVA",
+        "ONA": "ONA",
+        "TV_SHORT": "TV Short",
+        "MUSIC": "Music",
+        "SPECIAL": "Special",
+        "ONE_SHOT": "One Shot",
+        "NOVEL": "Novel",
+        "MANGA": "Manga",
     }
     return MediaType[media_type]
 
@@ -243,10 +243,10 @@ def format_media_type(media_type: str) -> str:
 def format_anime_status(media_status: str) -> str:
     """Formats the anilist anime status."""
     AnimeStatus = {
-        'FINISHED': 'Finished',
-        'RELEASING': 'Currently Airing',
-        'NOT_YET_RELEASED': 'Not Yet Aired',
-        'CANCELLED': 'Cancelled'
+        "FINISHED": "Finished",
+        "RELEASING": "Currently Airing",
+        "NOT_YET_RELEASED": "Not Yet Aired",
+        "CANCELLED": "Cancelled",
     }
     return AnimeStatus[media_status]
 
@@ -254,18 +254,18 @@ def format_anime_status(media_status: str) -> str:
 def format_manga_status(media_status: str) -> str:
     """Formats the anilist manga status."""
     MangaStatus = {
-        'FINISHED': 'Finished',
-        'RELEASING': 'Publishing',
-        'NOT_YET_RELEASED': 'Not Yet Published',
-        'CANCELLED': 'Cancelled'
+        "FINISHED": "Finished",
+        "RELEASING": "Publishing",
+        "NOT_YET_RELEASED": "Not Yet Published",
+        "CANCELLED": "Cancelled",
     }
     return MangaStatus[media_status]
 
 
 def clean_html(raw_text) -> str:
     """Removes the html tags from a text."""
-    clean = re.compile('<.*?>')
-    clean_text = re.sub(clean, '', raw_text)
+    clean = re.compile("<.*?>")
+    clean_text = re.sub(clean, "", raw_text)
     return clean_text
 
 
@@ -273,22 +273,22 @@ def format_description(description: str, length: int) -> str:
     """Formats the anilist description."""
     description = clean_html(description)
     # Remove markdown
-    description = description.replace('**', '').replace('__', '')
+    description = description.replace("**", "").replace("__", "")
     # Replace spoiler tags
-    description = description.replace('~!', '||').replace('!~', '||')
+    description = description.replace("~!", "||").replace("!~", "||")
     if len(description) > length:
         description = description[0:length]
-        spoiler_tag_count = description.count('||')
+        spoiler_tag_count = description.count("||")
         if spoiler_tag_count % 2 != 0:
-            return description + '...||'
-        return description + '...'
+            return description + "...||"
+        return description + "..."
     return description
 
 
 def format_date(day: int, month: int, year: int) -> str:
     """Formats the anilist date."""
-    month = datetime.date(1900, month, 1).strftime('%B')
-    date = f'{month} {str(day)}, {year}'
+    month = datetime.date(1900, month, 1).strftime("%B")
+    date = f"{month} {str(day)}, {year}"
     return date
 
 

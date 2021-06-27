@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Any, Dict, Union, List
+from typing import Any, Dict, List, Optional, Union
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -56,19 +56,19 @@ class CrunchyrollClient:
     @staticmethod
     async def _parse_feed(text: str, count: int) -> Union[List[Dict[str, Any]], None]:
         """Parses the feed and creates a dictionary for each entry."""
-        soup = BeautifulSoup(text, 'html.parser')
-        items = soup.find_all('item')
+        soup = BeautifulSoup(text, "html.parser")
+        items = soup.find_all("item")
         if items:
             data = []
             for item in items:
                 if len(data) >= count:
                     break
                 feed = {
-                    'title': item.find('title').text,
-                    'author': item.find('author').text,
-                    'description': item.find('description').text,
-                    'date': item.find('pubdate').text,
-                    'link': item.find('guid').text
+                    "title": item.find("title").text,
+                    "author": item.find("author").text,
+                    "description": item.find("description").text,
+                    "date": item.find("pubdate").text,
+                    "link": item.find("guid").text,
                 }
                 data.append(feed)
             return data

@@ -16,8 +16,7 @@ class AnilistAPIError(AnilistException):
     """Exception due to an error response from the AniList API."""
 
     def __init__(self, msg: str, status: int, locations: List[Dict[str, Any]]) -> None:
-        super().__init__(
-            f'{msg} - Status: {str(status)} - Locations: {locations}')
+        super().__init__(f"{msg} - Status: {str(status)} - Locations: {locations}")
 
 
 class AniListClient:
@@ -46,39 +45,44 @@ class AniListClient:
     async def _request(self, query: str, **variables: Union[str, Any]) -> Dict[str, Any]:
         """Makes a request to the AniList API."""
         session = await self._session()
-        response = await session.post(ANILIST_API_ENDPOINT, json={'query': query, 'variables': variables})
+        response = await session.post(
+            ANILIST_API_ENDPOINT, json={"query": query, "variables": variables}
+        )
         data = await response.json()
-        if data.get('errors'):
-            raise AnilistAPIError(data.get('errors')[0]['message'], data.get('errors')[0]['status'],
-                                  data.get('errors')[0].get('locations'))
+        if data.get("errors"):
+            raise AnilistAPIError(
+                data.get("errors")[0]["message"],
+                data.get("errors")[0]["status"],
+                data.get("errors")[0].get("locations"),
+            )
         return data
 
     async def media(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
         """Gets a list of media entries based on the given search variables."""
         data = await self._request(query=Query.media(), **variables)
-        if data.get('data')['Page']['media']:
-            return data.get('data')['Page']['media']
+        if data.get("data")["Page"]["media"]:
+            return data.get("data")["Page"]["media"]
         return None
 
     async def character(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
         """Gets a list of characters based on the given search variables."""
         data = await self._request(query=Query.character(), **variables)
-        if data.get('data')['Page']['characters']:
-            return data.get('data')['Page']['characters']
+        if data.get("data")["Page"]["characters"]:
+            return data.get("data")["Page"]["characters"]
         return None
 
     async def staff(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
         """Gets a list of staff entries based on the given search variables."""
         data = await self._request(query=Query.staff(), **variables)
-        if data.get('data')['Page']['staff']:
-            return data.get('data')['Page']['staff']
+        if data.get("data")["Page"]["staff"]:
+            return data.get("data")["Page"]["staff"]
         return None
 
     async def studio(self, **variables: Union[str, Any]) -> Union[List[Dict[str, Any]], None]:
         """Gets a list of studios based on the given search variables."""
         data = await self._request(query=Query.studio(), **variables)
-        if data.get('data')['Page']['studios']:
-            return data.get('data')['Page']['studios']
+        if data.get("data")["Page"]["studios"]:
+            return data.get("data")["Page"]["studios"]
         return None
 
     async def genre(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
@@ -98,30 +102,29 @@ class AniListClient:
     async def user(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
         """Gets a user based on the given search variables."""
         data = await self._request(query=Query.user(), **variables)
-        if data.get('data')['Page']['users']:
-            return data.get('data')['Page']['users'][0]
+        if data.get("data")["Page"]["users"]:
+            return data.get("data")["Page"]["users"][0]
         return None
 
     async def schedule(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
         """Gets a airing schedule based on the given search variables."""
         data = await self._request(query=Query.schedule(), **variables)
-        if data.get('data')['Page']['airingSchedules']:
-            return data.get('data')['Page']['airingSchedules']
+        if data.get("data")["Page"]["airingSchedules"]:
+            return data.get("data")["Page"]["airingSchedules"]
         return None
 
     async def trending(self, **variables: Union[str, Any]) -> Union[Dict[str, Any], None]:
         """Gets a list of trending media entries."""
         data = await self._request(query=Query.trending(), **variables)
-        if data.get('data')['Page']['media']:
-            return data.get('data')['Page']['media']
+        if data.get("data")["Page"]["media"]:
+            return data.get("data")["Page"]["media"]
         return None
 
 
 class Query:
-
     @classmethod
     def media(cls) -> str:
-        MEDIA_QUERY: str = '''
+        MEDIA_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String, $type: MediaType) {
           Page(page: $page, perPage: $perPage) {
             media(search: $search, type: $type) {
@@ -179,12 +182,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return MEDIA_QUERY
 
     @classmethod
     def character(cls) -> str:
-        CHARACTER_QUERY: str = '''
+        CHARACTER_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             characters(search: $search) {
@@ -209,12 +212,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return CHARACTER_QUERY
 
     @classmethod
     def staff(cls) -> str:
-        STAFF_QUERY: str = '''
+        STAFF_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             staff(search: $search) {
@@ -248,12 +251,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return STAFF_QUERY
 
     @classmethod
     def studio(cls) -> str:
-        STUDIO_QUERY: str = '''
+        STUDIO_QUERY: str = """
         query ($page: Int, $perPage: Int, $search: String) {
           Page(page: $page, perPage: $perPage) {
             studios(search: $search) {
@@ -276,12 +279,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return STUDIO_QUERY
 
     @classmethod
     def genre(cls) -> str:
-        GENRE_QUERY: str = '''
+        GENRE_QUERY: str = """
         query ($page: Int, $perPage: Int, $genre: String, $type: MediaType, $format_in: [MediaFormat]) {
           Page(page: $page, perPage: $perPage) {
             pageInfo {
@@ -342,12 +345,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return GENRE_QUERY
 
     @classmethod
     def tag(cls) -> str:
-        TAG_QUERY: str = '''
+        TAG_QUERY: str = """
         query ($page: Int, $perPage: Int, $tag: String, $type: MediaType, $format_in: [MediaFormat]) {
           Page(page: $page, perPage: $perPage) {
             pageInfo {
@@ -408,12 +411,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return TAG_QUERY
 
     @classmethod
     def user(cls) -> str:
-        USER_QUERY: str = '''
+        USER_QUERY: str = """
         query ($page: Int, $perPage: Int, $name: String) {
           Page(page: $page, perPage: $perPage) {
             users(name: $name) {
@@ -499,12 +502,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return USER_QUERY
 
     @classmethod
     def schedule(cls) -> str:
-        SCHEDULE_QUERY: str = '''
+        SCHEDULE_QUERY: str = """
         query ($page: Int, $perPage: Int, $notYetAired: Boolean, $sort: [AiringSort]) {
           Page(page: $page, perPage: $perPage) {
             airingSchedules(notYetAired: $notYetAired, sort: $sort) {
@@ -537,12 +540,12 @@ class Query:
             }
           }
         }
-        '''
+        """
         return SCHEDULE_QUERY
 
     @classmethod
     def trending(cls) -> str:
-        TRENDING_QUERY: str = '''
+        TRENDING_QUERY: str = """
         query ($page: Int, $perPage: Int, $type: MediaType, $sort: [MediaSort]) {
           Page(page: $page, perPage: $perPage) {
             media(type: $type, sort: $sort) {
@@ -600,5 +603,5 @@ class Query:
             }
           }
         }
-        '''
+        """
         return TRENDING_QUERY

@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Any, Dict
+from typing import Any, Dict, Optional
 
 import aiohttp
 
@@ -16,13 +16,15 @@ class AnimeThemesAPIError(AnimeThemesException):
     """Exception due to an error response from the AnimeThemes API."""
 
     def __init__(self, msg: str, status: int) -> None:
-        super().__init__(msg + ' - Status: ' + str(status))
+        super().__init__(msg + " - Status: " + str(status))
 
 
 class AnimeThemesClient:
     """Asynchronous wrapper client for the AnimeThemes API."""
 
-    def __init__(self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None) -> None:
+    def __init__(
+        self, session: Optional[aiohttp.ClientSession] = None, headers: Dict[str, Any] = None
+    ) -> None:
         self.session = session
         if headers:
             self.headers = headers
@@ -51,22 +53,25 @@ class AnimeThemesClient:
         session = await self._session()
         response = await session.get(url=url, headers=self.headers)
         data = await response.json()
-        if data.get('errors'):
+        if data.get("errors"):
             raise AnimeThemesAPIError(
-                data.get('errors')[0]['detail'], data.get('errors')[0]['status'])
+                data.get("errors")[0]["detail"], data.get("errors")[0]["status"]
+            )
         return data
 
     @staticmethod
     async def get_url(endpoint: str, parameters: str) -> str:
         """Creates the request url for the animethemes endpoints."""
-        request_url = f'{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}'
+        request_url = f"{ANIMETHEMES_BASE_URL}/{endpoint}{parameters}"
         return request_url
 
     async def search(self, query: str, limit: Optional[int] = 5) -> Dict[str, Any]:
         """Returns relevant resources by search criteria."""
-        q = '%20'.join(query.split())
-        parameters = f'?q={q}&limit={limit}&fields[search]=anime&include=' \
-                     f'themes.entries.videos%2Cthemes.song.artists%2Cimages'
-        url = await self.get_url('search', parameters)
+        q = "%20".join(query.split())
+        parameters = (
+            f"?q={q}&limit={limit}&fields[search]=anime&include="
+            f"themes.entries.videos%2Cthemes.song.artists%2Cimages"
+        )
+        url = await self.get_url("search", parameters)
         data = await self._request(url=url)
         return data
