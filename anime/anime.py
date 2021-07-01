@@ -75,10 +75,8 @@ class Anime(Finder, commands.Cog):
                 )
                 await menu.start(ctx)
             else:
-                embed = (
-                    discord.Embed(
-                        title=f"The manga `{title}` could not be found.", color=discord.Color.red()
-                    ),
+                embed = discord.Embed(
+                  title=f"The manga `{title}` could not be found.", color=discord.Color.red()
                 )
                 await ctx.channel.send(embed=embed)
 
@@ -99,11 +97,9 @@ class Anime(Finder, commands.Cog):
                 )
                 await menu.start(ctx)
             else:
-                embed = (
-                    discord.Embed(
-                        title=f"The character `{name}` could not be found.",
-                        color=discord.Color.red(),
-                    ),
+                embed = discord.Embed(
+                  title=f"The character `{name}` could not be found.",
+                  color=discord.Color.red(),
                 )
                 await ctx.channel.send(embed=embed)
 
@@ -122,10 +118,8 @@ class Anime(Finder, commands.Cog):
                 )
                 await menu.start(ctx)
             else:
-                embed = (
-                    discord.Embed(
-                        title=f"The staff `{name}` could not be found.", color=discord.Color.red()
-                    ),
+                embed = discord.Embed(
+                  title=f"The staff `{name}` could not be found.", color=discord.Color.red()
                 )
                 await ctx.channel.send(embed=embed)
 
